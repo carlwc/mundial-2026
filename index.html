@@ -120,7 +120,7 @@
     .team-cell { display: flex; align-items: center; gap: 7px; font-size: 0.9rem; font-weight: 500; }
     .team-cell.home { justify-content: flex-end; flex-direction: row-reverse; }
     .team-cell.away { justify-content: flex-start; }
-    .flag { font-size: 1.1rem; line-height: 1; }
+    .flag { width: 24px; height: 16px; object-fit: cover; border-radius: 2px; display: inline-block; vertical-align: middle; flex-shrink: 0; }
     .score-box {
       text-align: center; background: var(--surface2); border: 1px solid var(--border);
       border-radius: 6px; padding: 6px 0; display: flex; align-items: center; justify-content: center;
@@ -591,19 +591,20 @@ const GROUPS = {
   L: ['England','Croatia','Ghana','Panama'],
 };
 
+// ISO 3166-1 alpha-2 codes for flagcdn.com
 const FLAGS = {
-  'Mexico':'🇲🇽','South Africa':'🇿🇦','South Korea':'🇰🇷','Czech Republic':'🇨🇿',
-  'Canada':'🇨🇦','Bosnia & Herzegovina':'🇧🇦','Qatar':'🇶🇦','Switzerland':'🇨🇭',
-  'Brazil':'🇧🇷','Morocco':'🇲🇦','Haiti':'🇭🇹','Scotland':'🏴󠁧󠁢󠁳󠁣󠁴󠁿',
-  'USA':'🇺🇸','Paraguay':'🇵🇾','Australia':'🇦🇺','Turkey':'🇹🇷',
-  'Germany':'🇩🇪','Curaçao':'🇨🇼','Ivory Coast':'🇨🇮','Ecuador':'🇪🇨',
-  'Netherlands':'🇳🇱','Japan':'🇯🇵','Sweden':'🇸🇪','Tunisia':'🇹🇳',
-  'Belgium':'🇧🇪','Egypt':'🇪🇬','Iran':'🇮🇷','New Zealand':'🇳🇿',
-  'Spain':'🇪🇸','Cape Verde':'🇨🇻','Saudi Arabia':'🇸🇦','Uruguay':'🇺🇾',
-  'France':'🇫🇷','Senegal':'🇸🇳','Iraq':'🇮🇶','Norway':'🇳🇴',
-  'Argentina':'🇦🇷','Algeria':'🇩🇿','Austria':'🇦🇹','Jordan':'🇯🇴',
-  'Portugal':'🇵🇹','DR Congo':'🇨🇩','Uzbekistan':'🇺🇿','Colombia':'🇨🇴',
-  'England':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Croatia':'🇭🇷','Ghana':'🇬🇭','Panama':'🇵🇦',
+  'Mexico':'mx','South Africa':'za','South Korea':'kr','Czech Republic':'cz',
+  'Canada':'ca','Bosnia & Herzegovina':'ba','Qatar':'qa','Switzerland':'ch',
+  'Brazil':'br','Morocco':'ma','Haiti':'ht','Scotland':'gb-sct',
+  'USA':'us','Paraguay':'py','Australia':'au','Turkey':'tr',
+  'Germany':'de','Curaçao':'cw','Ivory Coast':'ci','Ecuador':'ec',
+  'Netherlands':'nl','Japan':'jp','Sweden':'se','Tunisia':'tn',
+  'Belgium':'be','Egypt':'eg','Iran':'ir','New Zealand':'nz',
+  'Spain':'es','Cape Verde':'cv','Saudi Arabia':'sa','Uruguay':'uy',
+  'France':'fr','Senegal':'sn','Iraq':'iq','Norway':'no',
+  'Argentina':'ar','Algeria':'dz','Austria':'at','Jordan':'jo',
+  'Portugal':'pt','DR Congo':'cd','Uzbekistan':'uz','Colombia':'co',
+  'England':'gb-eng','Croatia':'hr','Ghana':'gh','Panama':'pa',
 };
 
 // Team name translations (proper nouns, used in Spanish mode)
@@ -780,7 +781,11 @@ function setTZ(tz) { currentTZ = tz; saveTZ(); renderSchedule(); }
 // ══════════════════════════════════════════════════════════════
 
 const t = key => TR[lang][key];
-const flag = team => FLAGS[team] || '🏳️';
+const flag = team => {
+  const code = FLAGS[team];
+  if (!code) return '<span style="width:24px;display:inline-block"></span>';
+  return `<img class="flag" src="https://flagcdn.com/w40/${code}.png" alt="${team}">`;
+};
 const teamName = team => lang==='es' ? (TEAM_ES[team] || team) : team;
 
 function fmtDate(s) {
@@ -1024,10 +1029,12 @@ function renderBracket() {
       const s = scores[m.id];
       const raw1 = resolveSlot(m.s1), raw2 = resolveSlot(m.s2);
       const disp1 = teamName(raw1.replace(/ \(.*\)$/,'')), disp2 = teamName(raw2.replace(/ \(.*\)$/,''));
-      const f1 = FLAGS[raw1.replace(/ \(.*\)$/,'')] || '';
-      const f2 = FLAGS[raw2.replace(/ \(.*\)$/,'')] || '';
-      const isSlot1Known = f1 !== '';
-      const isSlot2Known = f2 !== '';
+      const code1 = FLAGS[raw1.replace(/ \(.*\)$/,'')];
+      const code2 = FLAGS[raw2.replace(/ \(.*\)$/,'')];
+      const f1 = code1 ? `<img class="flag" src="https://flagcdn.com/w40/${code1}.png" alt="">` : '';
+      const f2 = code2 ? `<img class="flag" src="https://flagcdn.com/w40/${code2}.png" alt="">` : '';
+      const isSlot1Known = !!code1;
+      const isSlot2Known = !!code2;
 
       let t1win='', t2win='';
       if (s) { t1win=s.h>s.a?'winner':''; t2win=s.a>s.h?'winner':''; }
@@ -1064,7 +1071,9 @@ function renderBracket() {
     const champ = fs.h>fs.a ? t1 : fs.a>fs.h ? t2 : null;
     if (champ) {
       document.getElementById('champion-banner').classList.add('visible');
-      document.getElementById('champion-name').textContent = (FLAGS[champ]||'🏆') + ' ' + teamName(champ);
+      const champCode = FLAGS[champ];
+      const champFlag = champCode ? `<img class="flag" src="https://flagcdn.com/w40/${champCode}.png" alt=""> ` : '🏆 ';
+      document.getElementById('champion-name').innerHTML = champFlag + teamName(champ);
     }
   } else {
     document.getElementById('champion-banner').classList.remove('visible');
@@ -1082,8 +1091,8 @@ function openModal(id) {
   document.getElementById('m-title').textContent = t('modalGrpTitle')(m.g, m.md);
   document.getElementById('m-match').textContent = `${teamName(m.h)} vs ${teamName(m.a)}`;
   document.getElementById('m-sub').textContent   = `${fmtDate(m.date)}  ·  ${m.venue!=='TBD'?m.venue:t('venueTbd')}`;
-  document.getElementById('m-flag1').textContent  = flag(m.h);
-  document.getElementById('m-flag2').textContent  = flag(m.a);
+  document.getElementById('m-flag1').innerHTML  = flag(m.h);
+  document.getElementById('m-flag2').innerHTML  = flag(m.a);
   document.getElementById('m-name1').textContent  = teamName(m.h);
   document.getElementById('m-name2').textContent  = teamName(m.a);
   const s = sc(id);
@@ -1100,8 +1109,8 @@ function openKoModal(id, s1, s2) {
   document.getElementById('m-title').textContent  = t('koMatch');
   document.getElementById('m-match').textContent  = `${teamName(raw1)} vs ${teamName(raw2)}`;
   document.getElementById('m-sub').textContent    = id;
-  document.getElementById('m-flag1').textContent  = FLAGS[raw1.replace(/ \(.*\)$/,'')] || '🏳️';
-  document.getElementById('m-flag2').textContent  = FLAGS[raw2.replace(/ \(.*\)$/,'')] || '🏳️';
+  document.getElementById('m-flag1').innerHTML  = flag(raw1.replace(/ \(.*\)$/,''));
+  document.getElementById('m-flag2').innerHTML  = flag(raw2.replace(/ \(.*\)$/,''));
   document.getElementById('m-name1').textContent  = teamName(raw1.replace(/ \(.*\)$/,''));
   document.getElementById('m-name2').textContent  = teamName(raw2.replace(/ \(.*\)$/,''));
   const s = scores[id];
