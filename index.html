@@ -287,11 +287,23 @@
     .data-btn.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
     .data-btn.primary:hover { background: var(--accent2); }
 
+    /* ─── TIMEZONE SELECTOR ─── */
+    .tz-wrap { display: flex; align-items: center; gap: 7px; }
+    .tz-label { font-size: 0.72rem; color: var(--text-dim); white-space: nowrap; }
+    .tz-select {
+      background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px;
+      color: var(--text); font-size: 0.78rem; padding: 6px 10px; cursor: pointer;
+      outline: none; max-width: 170px;
+    }
+    .tz-select:hover { border-color: var(--accent); }
+    .tz-select:focus { border-color: var(--accent); }
+
     @media (max-width: 640px) {
       main { padding: 16px; }
       .match-card { grid-template-columns: 1fr 72px 1fr; }
       .match-meta { display: none; }
       .stat-val { font-size: 1.2rem; }
+      .tz-wrap { display: none; }
     }
   </style>
 </head>
@@ -306,6 +318,44 @@
     </div>
   </div>
   <div class="header-right">
+    <div class="tz-wrap">
+      <span class="tz-label" id="lbl-tz">🕐 Time zone:</span>
+      <select class="tz-select" id="tz-select" onchange="setTZ(this.value)">
+        <optgroup label="Americas">
+          <option value="America/New_York">Eastern (ET)</option>
+          <option value="America/Chicago">Central (CT)</option>
+          <option value="America/Denver">Mountain (MT)</option>
+          <option value="America/Los_Angeles">Pacific (PT)</option>
+          <option value="America/Anchorage">Alaska (AKT)</option>
+          <option value="Pacific/Honolulu">Hawaii (HST)</option>
+          <option value="America/Mexico_City">Mexico City</option>
+          <option value="America/Toronto">Toronto</option>
+          <option value="America/Bogota">Bogotá / Lima</option>
+          <option value="America/Argentina/Buenos_Aires">Buenos Aires</option>
+          <option value="America/Sao_Paulo">São Paulo</option>
+        </optgroup>
+        <optgroup label="Europe">
+          <option value="Europe/London">London (GMT/BST)</option>
+          <option value="Europe/Paris">Central Europe (CET)</option>
+          <option value="Europe/Helsinki">Eastern Europe (EET)</option>
+          <option value="Europe/Moscow">Moscow (MSK)</option>
+        </optgroup>
+        <optgroup label="Africa">
+          <option value="Africa/Cairo">Cairo (EET)</option>
+          <option value="Africa/Lagos">Lagos / Dakar (WAT)</option>
+          <option value="Africa/Nairobi">Nairobi (EAT)</option>
+        </optgroup>
+        <optgroup label="Asia / Pacific">
+          <option value="Asia/Dubai">Dubai (GST)</option>
+          <option value="Asia/Kolkata">India (IST)</option>
+          <option value="Asia/Bangkok">Bangkok / Jakarta (ICT)</option>
+          <option value="Asia/Shanghai">China / Philippines (CST)</option>
+          <option value="Asia/Tokyo">Japan / Korea (JST)</option>
+          <option value="Australia/Sydney">Sydney (AEDT)</option>
+          <option value="Pacific/Auckland">Auckland (NZST)</option>
+        </optgroup>
+      </select>
+    </div>
     <div class="lang-toggle">
       <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
       <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
@@ -712,8 +762,18 @@ try { lang = localStorage.getItem('wc2026_lang') || 'en'; } catch(e){}
 let gFilter = 'all';
 let editId = null;
 
+// Timezone: default to browser's local timezone, fallback to Pacific
+let currentTZ = 'America/Los_Angeles';
+try {
+  const saved = localStorage.getItem('wc2026_tz');
+  currentTZ = saved || Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Los_Angeles';
+} catch(e){}
+
 function save()    { try { localStorage.setItem('wc2026', JSON.stringify(scores)); } catch(e){} }
 function saveLang(){ try { localStorage.setItem('wc2026_lang', lang); } catch(e){} }
+function saveTZ()  { try { localStorage.setItem('wc2026_tz', currentTZ); } catch(e){} }
+
+function setTZ(tz) { currentTZ = tz; saveTZ(); renderSchedule(); }
 
 // ══════════════════════════════════════════════════════════════
 // HELPERS
@@ -729,6 +789,33 @@ function fmtDate(s) {
 }
 
 const sc = id => scores[id] || null;
+
+// Convert a stored PDT time string (e.g. "3:00 PM PDT") to the user's chosen timezone.
+// Returns the formatted time string, or the original if it can't be parsed.
+function convertTime(timeStr, dateStr) {
+  if (!timeStr || timeStr === 'TBD') return timeStr;
+  // Strip the trailing timezone label (PDT / PST / etc.) — we treat stored times as PDT (UTC-7)
+  const clean = timeStr.replace(/\s*(PDT|PST|PT)\s*$/i, '').trim();
+  const m = clean.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!m) return timeStr;
+  let hours = parseInt(m[1], 10);
+  const mins = m[2];
+  const ampm = m[3].toUpperCase();
+  if (ampm === 'AM' && hours === 12) hours = 0;
+  if (ampm === 'PM' && hours !== 12) hours += 12;
+  // Build an ISO string in PDT (UTC-7)
+  const iso = `${dateStr}T${String(hours).padStart(2,'0')}:${mins}:00-07:00`;
+  const dt = new Date(iso);
+  if (isNaN(dt)) return timeStr;
+  try {
+    return new Intl.DateTimeFormat('en-US', {
+      hour: 'numeric', minute: '2-digit',
+      timeZone: currentTZ, timeZoneName: 'short'
+    }).format(dt);
+  } catch(e) {
+    return timeStr; // Unknown timezone — fall back gracefully
+  }
+}
 
 function standings(g) {
   const teams = GROUPS[g];
@@ -841,14 +928,14 @@ function renderSchedule() {
         const aw = s.a>s.h?'win':s.a<s.h?'loss':'';
         scoreHtml = `<span class="s-home ${hw}">${s.h}</span><span class="sep"> – </span><span class="s-away ${aw}">${s.a}</span>`;
       } else {
-        scoreHtml = m.time;
+        scoreHtml = convertTime(m.time, m.date);
       }
       const venueLine = m.venue !== 'TBD' ? m.venue.split(',')[0] : t('venueTbd');
       const venueCity = m.venue !== 'TBD' ? m.venue.split(',').slice(1).join(',').trim() : '';
       html += `<div class="match-card ${s?'played':''}" onclick="openModal('${m.id}')">
         <div class="match-meta right">
           <span class="g-badge">${t('groupMdBadge')(m.g, m.md)}</span><br>
-          <span style="margin-top:3px;display:block">${m.time!=='TBD'?m.time:''}</span>
+          <span style="margin-top:3px;display:block">${m.time!=='TBD'?convertTime(m.time,m.date):''}</span>
         </div>
         <div class="team-cell home"><span class="flag">${flag(m.h)}</span>${hn}</div>
         <div class="score-box ${s?'':'tbd'}">${scoreHtml}</div>
@@ -1221,6 +1308,18 @@ document.querySelectorAll('.score-inp').forEach(inp => {
 // Boot
 applyLabels();
 renderAll();
+// Set timezone selector to current value (saved or auto-detected)
+(function() {
+  const sel = document.getElementById('tz-select');
+  if (!sel) return;
+  // Try exact match first
+  let found = Array.from(sel.options).some(o => { if(o.value === currentTZ){ o.selected=true; return true; } });
+  // If the auto-detected TZ isn't in our list, leave the dropdown on whatever it lands on
+  if (!found) {
+    // Reset to Pacific as a safe default
+    Array.from(sel.options).forEach(o => { if(o.value==='America/Los_Angeles') o.selected=true; });
+  }
+})();
 setInterval(updateCountdown, 60000);
 // Try to pull remote scores.json (works when hosted on GitHub Pages).
 // Falls back silently to localStorage if the file doesn't exist yet.
