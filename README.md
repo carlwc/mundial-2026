@@ -11,6 +11,7 @@ An interactive, bilingual (English/Spanish) dashboard for tracking every match o
 - **📅 Schedule** — All 72 group stage matches in chronological order, with confirmed kickoff times in Pacific Daylight Time (PDT). Filter by group. Click any match to enter a score.
 - **📊 Groups** — Live standings for all 12 groups (W / D / L / GF / GA / GD / Pts), auto-calculated as scores are entered.
 - **🏆 Bracket** — Full knockout bracket from the Round of 32 through the Final. Slots fill in automatically as the group stage and each knockout round complete.
+- **🕐 Timezone selector** — Pick your local timezone from a dropdown in the header. All known kickoff times convert instantly. The page auto-detects your timezone on first visit and saves your preference between visits.
 - **🌐 EN / ES toggle** — Switch between English and Spanish at any time. Preference is saved between visits.
 - **📡 Auto-updating** — The page fetches the latest `scores.json` from this repo on every load. Scores are pushed as soon as possible after each match ends — just refresh your browser.
 
@@ -61,6 +62,9 @@ Click any match card on the Schedule tab to open the score entry dialog. Enter g
 
 ### Filtering the Schedule
 Use the group filter buttons (Group A – Group L) to narrow the schedule to a single group. Click **All** to return to the full schedule.
+
+### Changing Your Timezone
+Use the **🕐 Time zone:** dropdown in the top-right corner of the header to select your timezone. All match times that have confirmed kickoffs convert immediately. Times listed as "TBD" are unaffected. Your selection is remembered between visits.
 
 ### The Bracket
 Bracket slots labeled `1A`, `2B`, etc. fill in with team names once each group is complete. Knockout match slots fill in as results are entered. A champion banner appears once the Final is decided.
