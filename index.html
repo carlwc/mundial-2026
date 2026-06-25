@@ -712,34 +712,52 @@ const MATCHES = [
   {id:'L6',g:'L',md:3,date:'2026-06-27',time:'2:00 PM PDT',venue:'Lincoln Financial Field, Philadelphia PA',h:'Croatia',a:'Ghana'},
 ];
 
+// ── Official FIFA 2026 Round of 32 bracket (matches 73–88) ──
+// Third-place slots use format "3rd:GROUPS" — e.g. "3rd:ABCDF" means
+// "best 3rd-place team from groups A/B/C/D/F". The actual slot is
+// determined by which 8 of 12 third-placed teams qualify (495 scenarios).
 const KO_ROUNDS_DEF = [
   { id:'r32', nameKey:'roundR32', datesKey:'r32dates', matches:[
-    {id:'R32-A',s1:'1A',s2:'3C'},{id:'R32-B',s1:'1B',s2:'3D'},
-    {id:'R32-C',s1:'1C',s2:'2A'},{id:'R32-D',s1:'1D',s2:'2B'},
-    {id:'R32-E',s1:'1E',s2:'3G'},{id:'R32-F',s1:'1F',s2:'3H'},
-    {id:'R32-G',s1:'1G',s2:'2E'},{id:'R32-H',s1:'1H',s2:'2F'},
-    {id:'R32-I',s1:'1I',s2:'3K'},{id:'R32-J',s1:'1J',s2:'3L'},
-    {id:'R32-K',s1:'1K',s2:'2I'},{id:'R32-L',s1:'1L',s2:'2J'},
-    {id:'R32-M',s1:'2C',s2:'2D'},{id:'R32-N',s1:'2G',s2:'2H'},
-    {id:'R32-O',s1:'2K',s2:'2L'},{id:'R32-P',s1:'3A',s2:'3B'},
+    {id:'M73', s1:'2A',        s2:'2B'},           // M73: Ru-A vs Ru-B
+    {id:'M74', s1:'1E',        s2:'3rd:ABCDF'},    // M74: W-E vs Best 3rd (A/B/C/D/F)
+    {id:'M75', s1:'1F',        s2:'2C'},            // M75: W-F vs Ru-C
+    {id:'M76', s1:'1C',        s2:'2F'},            // M76: W-C vs Ru-F
+    {id:'M77', s1:'1I',        s2:'3rd:CDFGH'},    // M77: W-I vs Best 3rd (C/D/F/G/H)
+    {id:'M78', s1:'2E',        s2:'2I'},            // M78: Ru-E vs Ru-I
+    {id:'M79', s1:'1A',        s2:'3rd:CEFHI'},    // M79: W-A vs Best 3rd (C/E/F/H/I)
+    {id:'M80', s1:'1L',        s2:'3rd:EHIJK'},    // M80: W-L vs Best 3rd (E/H/I/J/K)
+    {id:'M81', s1:'1D',        s2:'3rd:BEFIJ'},    // M81: W-D vs Best 3rd (B/E/F/I/J)
+    {id:'M82', s1:'1G',        s2:'3rd:AEHIJ'},    // M82: W-G vs Best 3rd (A/E/H/I/J)
+    {id:'M83', s1:'2K',        s2:'2L'},            // M83: Ru-K vs Ru-L
+    {id:'M84', s1:'1H',        s2:'2J'},            // M84: W-H vs Ru-J
+    {id:'M85', s1:'1B',        s2:'3rd:EFGIJ'},    // M85: W-B vs Best 3rd (E/F/G/I/J)
+    {id:'M86', s1:'1J',        s2:'2H'},            // M86: W-J vs Ru-H
+    {id:'M87', s1:'1K',        s2:'3rd:DEJIL'},    // M87: W-K vs Best 3rd (D/E/J/I/L)
+    {id:'M88', s1:'2D',        s2:'2G'},            // M88: Ru-D vs Ru-G
   ]},
   { id:'r16', nameKey:'roundR16', datesKey:'r16dates', matches:[
-    {id:'R16-1',s1:'W:R32-A',s2:'W:R32-B'},{id:'R16-2',s1:'W:R32-C',s2:'W:R32-D'},
-    {id:'R16-3',s1:'W:R32-E',s2:'W:R32-F'},{id:'R16-4',s1:'W:R32-G',s2:'W:R32-H'},
-    {id:'R16-5',s1:'W:R32-I',s2:'W:R32-J'},{id:'R16-6',s1:'W:R32-K',s2:'W:R32-L'},
-    {id:'R16-7',s1:'W:R32-M',s2:'W:R32-N'},{id:'R16-8',s1:'W:R32-O',s2:'W:R32-P'},
+    {id:'M89', s1:'W:M74', s2:'W:M77'},   // W-E path vs W-I path
+    {id:'M90', s1:'W:M73', s2:'W:M75'},   // Ru-A/B path vs W-F path
+    {id:'M91', s1:'W:M76', s2:'W:M78'},   // W-C path vs Ru-E/I path
+    {id:'M92', s1:'W:M79', s2:'W:M80'},   // W-A path vs W-L path
+    {id:'M93', s1:'W:M83', s2:'W:M84'},   // Ru-K/L path vs W-H path
+    {id:'M94', s1:'W:M81', s2:'W:M82'},   // W-D path vs W-G path
+    {id:'M95', s1:'W:M86', s2:'W:M88'},   // W-J path vs Ru-D/G path
+    {id:'M96', s1:'W:M85', s2:'W:M87'},   // W-B path vs W-K path
   ]},
   { id:'qf', nameKey:'roundQF', datesKey:'qfdates', matches:[
-    {id:'QF-1',s1:'W:R16-1',s2:'W:R16-2'},{id:'QF-2',s1:'W:R16-3',s2:'W:R16-4'},
-    {id:'QF-3',s1:'W:R16-5',s2:'W:R16-6'},{id:'QF-4',s1:'W:R16-7',s2:'W:R16-8'},
+    {id:'M97',  s1:'W:M89', s2:'W:M90'},
+    {id:'M98',  s1:'W:M93', s2:'W:M94'},
+    {id:'M99',  s1:'W:M91', s2:'W:M92'},
+    {id:'M100', s1:'W:M95', s2:'W:M96'},
   ]},
   { id:'sf', nameKey:'roundSF', datesKey:'sfdates', matches:[
-    {id:'SF-1',s1:'W:QF-1',s2:'W:QF-2',noteKey:'sf1venue'},
-    {id:'SF-2',s1:'W:QF-3',s2:'W:QF-4',noteKey:'sf2venue'},
+    {id:'M101', s1:'W:M97',  s2:'W:M98',  noteKey:'sf1venue'},
+    {id:'M102', s1:'W:M99',  s2:'W:M100', noteKey:'sf2venue'},
   ]},
   { id:'final', nameKey:'roundFinal', datesKey:'finaldates', matches:[
-    {id:'3RD',  s1:'L:SF-1',s2:'L:SF-2',noteKey:'thirdNote'},
-    {id:'FINAL',s1:'W:SF-1',s2:'W:SF-2',noteKey:'finalVenue',isChamp:true},
+    {id:'M103', s1:'L:M101', s2:'L:M102', noteKey:'thirdNote'},
+    {id:'M104', s1:'W:M101', s2:'W:M102', noteKey:'finalVenue', isChamp:true},
   ]},
 ];
 
@@ -859,6 +877,11 @@ function resolveSlot(slot) {
     const g = slot[1];
     if (groupDone(g)) return standings(g)[2].tm;
     return t('third3rd')(slot[1]);
+  }
+  // "3rd:ABCDF" → "Best 3rd (A/B/C/D/F)"
+  if (/^3rd:/.test(slot)) {
+    const groups = slot.slice(4).split('').join('/');
+    return `Best 3rd (${groups})`;
   }
   const wm = slot.match(/^(W|L):(.+)$/);
   if (wm) {
@@ -1065,9 +1088,9 @@ function renderBracket() {
   document.getElementById('bracket').innerHTML = html;
 
   // Champion banner
-  const fs = scores['FINAL'];
-  if (fs && scores['SF-1'] && scores['SF-2']) {
-    const t1 = resolveSlot('W:SF-1'), t2 = resolveSlot('W:SF-2');
+  const fs = scores['M104'];
+  if (fs && scores['M101'] && scores['M102']) {
+    const t1 = resolveSlot('W:M101'), t2 = resolveSlot('W:M102');
     const champ = fs.h>fs.a ? t1 : fs.a>fs.h ? t2 : null;
     if (champ) {
       document.getElementById('champion-banner').classList.add('visible');
