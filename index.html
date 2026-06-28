@@ -718,38 +718,38 @@ const MATCHES = [
 // determined by which 8 of 12 third-placed teams qualify (495 scenarios).
 const KO_ROUNDS_DEF = [
   { id:'r32', nameKey:'roundR32', datesKey:'r32dates', matches:[
-    {id:'M73', s1:'2A',        s2:'2B'},           // M73: Ru-A vs Ru-B
-    {id:'M74', s1:'1E',        s2:'3rd:ABCDF'},    // M74: W-E vs Best 3rd (A/B/C/D/F)
-    {id:'M75', s1:'1F',        s2:'2C'},            // M75: W-F vs Ru-C
-    {id:'M76', s1:'1C',        s2:'2F'},            // M76: W-C vs Ru-F
-    {id:'M77', s1:'1I',        s2:'3rd:CDFGH'},    // M77: W-I vs Best 3rd (C/D/F/G/H)
-    {id:'M78', s1:'2E',        s2:'2I'},            // M78: Ru-E vs Ru-I
-    {id:'M79', s1:'1A',        s2:'3rd:CEFHI'},    // M79: W-A vs Best 3rd (C/E/F/H/I)
-    {id:'M80', s1:'1L',        s2:'3rd:EHIJK'},    // M80: W-L vs Best 3rd (E/H/I/J/K)
-    {id:'M81', s1:'1D',        s2:'3rd:BEFIJ'},    // M81: W-D vs Best 3rd (B/E/F/I/J)
-    {id:'M82', s1:'1G',        s2:'3rd:AEHIJ'},    // M82: W-G vs Best 3rd (A/E/H/I/J)
-    {id:'M83', s1:'2K',        s2:'2L'},            // M83: Ru-K vs Ru-L
-    {id:'M84', s1:'1H',        s2:'2J'},            // M84: W-H vs Ru-J
-    {id:'M85', s1:'1B',        s2:'3rd:EFGIJ'},    // M85: W-B vs Best 3rd (E/F/G/I/J)
-    {id:'M86', s1:'1J',        s2:'2H'},            // M86: W-J vs Ru-H
-    {id:'M87', s1:'1K',        s2:'3rd:DEJIL'},    // M87: W-K vs Best 3rd (D/E/J/I/L)
-    {id:'M88', s1:'2D',        s2:'2G'},            // M88: Ru-D vs Ru-G
+    {id:'M73', s1:'2A',        s2:'2B',        info:'Jun 28 · SoFi Stadium, Los Angeles CA'},
+    {id:'M75', s1:'1F',        s2:'2C',        info:'Jun 29 · BC Place, Vancouver'},
+    {id:'M74', s1:'1E',        s2:'3rd:ABCDF', info:'Jun 28 · Estadio Azteca, Mexico City'},
+    {id:'M77', s1:'1I',        s2:'3rd:CDFGH', info:'Jun 29 · MetLife Stadium, East Rutherford NJ'},
+    {id:'M83', s1:'2K',        s2:'2L',        info:'Jul 1 · BMO Field, Toronto'},
+    {id:'M84', s1:'1H',        s2:'2J',        info:'Jul 1 · Gillette Stadium, Foxborough MA'},
+    {id:'M81', s1:'1D',        s2:'3rd:BEFIJ', info:'Jun 30 · NRG Stadium, Houston TX'},
+    {id:'M82', s1:'1G',        s2:'3rd:AEHIJ', info:'Jun 30 · Lumen Field, Seattle WA'},
+    {id:'M76', s1:'1C',        s2:'2F',        info:'Jun 29 · AT&T Stadium, Arlington TX'},
+    {id:'M78', s1:'2E',        s2:'2I',        info:'Jun 29 · Hard Rock Stadium, Miami FL'},
+    {id:'M79', s1:'1A',        s2:'3rd:CEFHI', info:'Jun 30 · Estadio BBVA, Monterrey'},
+    {id:'M80', s1:'1L',        s2:'3rd:EHIJK', info:'Jun 30 · Arrowhead Stadium, Kansas City MO'},
+    {id:'M85', s1:'1B',        s2:'3rd:EFGIJ', info:'Jul 1 · Lincoln Financial Field, Philadelphia PA'},
+    {id:'M87', s1:'1K',        s2:'3rd:DEJIL', info:'Jul 2 · Levi\'s Stadium, Santa Clara CA'},
+    {id:'M88', s1:'2D',        s2:'2G',        info:'Jul 3 · Rose Bowl, Pasadena CA'},
+    {id:'M86', s1:'1J',        s2:'2H',        info:'Jul 2 · Mercedes-Benz Stadium, Atlanta GA'},
   ]},
   { id:'r16', nameKey:'roundR16', datesKey:'r16dates', matches:[
-    {id:'M89', s1:'W:M74', s2:'W:M77'},   // W-E path vs W-I path
-    {id:'M90', s1:'W:M73', s2:'W:M75'},   // Ru-A/B path vs W-F path
-    {id:'M91', s1:'W:M76', s2:'W:M78'},   // W-C path vs Ru-E/I path
-    {id:'M92', s1:'W:M79', s2:'W:M80'},   // W-A path vs W-L path
-    {id:'M93', s1:'W:M83', s2:'W:M84'},   // Ru-K/L path vs W-H path
-    {id:'M94', s1:'W:M81', s2:'W:M82'},   // W-D path vs W-G path
-    {id:'M95', s1:'W:M86', s2:'W:M88'},   // W-J path vs Ru-D/G path
-    {id:'M96', s1:'W:M85', s2:'W:M87'},   // W-B path vs W-K path
+    {id:'M90', s1:'W:M73', s2:'W:M75', info:'Jul 4 · Lincoln Financial Field, Philadelphia PA'},
+    {id:'M89', s1:'W:M74', s2:'W:M77', info:'Jul 4 · NRG Stadium, Houston TX'},
+    {id:'M93', s1:'W:M83', s2:'W:M84', info:'Jul 5 · MetLife Stadium, East Rutherford NJ'},
+    {id:'M94', s1:'W:M81', s2:'W:M82', info:'Jul 5 · Estadio Azteca, Mexico City'},
+    {id:'M91', s1:'W:M76', s2:'W:M78', info:'Jul 6 · AT&T Stadium, Arlington TX'},
+    {id:'M92', s1:'W:M79', s2:'W:M80', info:'Jul 6 · Lumen Field, Seattle WA'},
+    {id:'M96', s1:'W:M85', s2:'W:M87', info:'Jul 6 · Mercedes-Benz Stadium, Atlanta GA'},
+    {id:'M95', s1:'W:M88', s2:'W:M86', info:'Jul 7 · BC Place, Vancouver'},
   ]},
   { id:'qf', nameKey:'roundQF', datesKey:'qfdates', matches:[
-    {id:'M97',  s1:'W:M89', s2:'W:M90'},
-    {id:'M98',  s1:'W:M93', s2:'W:M94'},
-    {id:'M99',  s1:'W:M91', s2:'W:M92'},
-    {id:'M100', s1:'W:M95', s2:'W:M96'},
+    {id:'M97',  s1:'W:M89', s2:'W:M90', info:'Jul 9 · Gillette Stadium, Foxborough MA'},
+    {id:'M98',  s1:'W:M93', s2:'W:M94', info:'Jul 10 · SoFi Stadium, Los Angeles CA'},
+    {id:'M99',  s1:'W:M91', s2:'W:M92', info:'Jul 11 · Hard Rock Stadium, Miami FL'},
+    {id:'M100', s1:'W:M96', s2:'W:M95', info:'Jul 11 · Arrowhead Stadium, Kansas City MO'},
   ]},
   { id:'sf', nameKey:'roundSF', datesKey:'sfdates', matches:[
     {id:'M101', s1:'W:M97',  s2:'W:M98',  noteKey:'sf1venue'},
@@ -763,9 +763,9 @@ const KO_ROUNDS_DEF = [
 
 // Static notes (venue names, not translated)
 const NOTES = {
-  sf1venue:   'AT&T Stadium, Dallas TX',
-  sf2venue:   'Mercedes-Benz Stadium, Atlanta GA',
-  finalVenue: 'MetLife Stadium, East Rutherford NJ',
+  sf1venue:   'Jul 14 · AT&T Stadium, Dallas TX',
+  sf2venue:   'Jul 15 · Mercedes-Benz Stadium, Atlanta GA',
+  finalVenue: 'Jul 19 · MetLife Stadium, East Rutherford NJ',
 };
 
 // ══════════════════════════════════════════════════════════════
@@ -1597,6 +1597,7 @@ function renderBracket() {
 
       const champClass = m.isChamp && s && s.h!==s.a ? 'champion':'';
       const note = m.noteKey ? (NOTES[m.noteKey] || t(m.noteKey)) : '';
+      const info = m.info || '';
 
       mHtml += `<div class="b-match ${champClass}" onclick="openKoModal('${m.id}','${m.s1}','${m.s2}')">
         <div class="b-team ${t1win} ${!isSlot1Known&&!s?'tbd':''}">
@@ -1607,6 +1608,7 @@ function renderBracket() {
           <span class="b-team-name">${f2?f2+' ':''}${disp2}</span>
           ${s?`<span class="b-score">${s.a}</span>`:''}
         </div>
+        ${info?`<div class="b-match-note">${info}</div>`:''}
         ${note?`<div class="b-match-note">${note}</div>`:''}
       </div>`;
     });
