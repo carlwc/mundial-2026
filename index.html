@@ -258,6 +258,17 @@
     .btn-cancel { background: var(--surface2); color: var(--text); border: 1px solid var(--border2); }
     .btn-cancel:hover { border-color: var(--accent); }
     .btn-clear { background: transparent; color: var(--text-dim); border: 1px solid var(--border); margin-right: auto; font-size: 0.78rem; }
+    .pen-row { display: none; margin-bottom: 18px; text-align: center; }
+    .pen-row.visible { display: block; }
+    .pen-label { font-size: 0.78rem; color: var(--text-dim); font-weight: 500; margin-bottom: 8px; }
+    .pen-btns { display: flex; gap: 8px; justify-content: center; }
+    .pen-btn {
+      flex: 1; padding: 8px 12px; border-radius: 7px; border: 2px solid var(--border2);
+      background: var(--surface2); color: var(--text); font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .pen-btn:hover { border-color: var(--accent); }
+    .pen-btn.selected { border-color: var(--accent); background: var(--accent); color: #000; }
     .btn-clear:hover { color: var(--red); border-color: var(--red); }
 
     /* ─── DATA BAR ─── */
@@ -448,6 +459,13 @@
       <div class="se-team">
         <span class="se-flag" id="m-flag2"></span>
         <span class="se-name" id="m-name2">Away</span>
+      </div>
+    </div>
+    <div class="pen-row" id="pen-row">
+      <div class="pen-label">⚽ Tied after 90 min — who won on penalties?</div>
+      <div class="pen-btns">
+        <button class="pen-btn" id="pen-btn1" onclick="selectPen(1)"></button>
+        <button class="pen-btn" id="pen-btn2" onclick="selectPen(2)"></button>
       </div>
     </div>
     <div class="modal-actions">
@@ -779,7 +797,7 @@ let lang = 'en';
 try { lang = localStorage.getItem('wc2026_lang') || 'en'; } catch(e){}
 
 let gFilter = 'all';
-let editId = null;
+let editId = null, editIsKo = false, selectedPen = null;
 
 // Timezone: default to browser's local timezone, fallback to Pacific
 let currentTZ = 'America/Los_Angeles';
@@ -1422,7 +1440,9 @@ function resolveSlot(slot) {
     const s=scores[mid]; if(!s) return slot;
     const km=findKoMatch(mid); if(!km) return slot;
     const t1=resolveSlot(km.s1), t2=resolveSlot(km.s2);
-    const t1wins = s.h>s.a;
+    // If tied, use penalty winner (pen=1 → team1 wins, pen=2 → team2 wins)
+    const t1wins = s.h>s.a ? true : s.h<s.a ? false : s.pen===1 ? true : s.pen===2 ? false : null;
+    if (t1wins === null) return slot; // tie with no pen winner yet — slot unresolved
     return type==='W' ? (t1wins?t1:t2) : (t1wins?t2:t1);
   }
   return slot;
@@ -1593,9 +1613,15 @@ function renderBracket() {
       const isSlot2Known = !!code2;
 
       let t1win='', t2win='';
-      if (s) { t1win=s.h>s.a?'winner':''; t2win=s.a>s.h?'winner':''; }
+      if (s) {
+        if (s.h > s.a) { t1win='winner'; }
+        else if (s.a > s.h) { t2win='winner'; }
+        else if (s.pen===1) { t1win='winner'; }
+        else if (s.pen===2) { t2win='winner'; }
+      }
+      const penLabel = s && s.h===s.a && s.pen ? '<div class="b-match-note">Pen.</div>' : '';
 
-      const champClass = m.isChamp && s && s.h!==s.a ? 'champion':'';
+      const champClass = m.isChamp && s && (s.h!==s.a || s.pen) ? 'champion':'';
       const note = m.noteKey ? (NOTES[m.noteKey] || t(m.noteKey)) : '';
       const info = m.info || '';
 
@@ -1608,6 +1634,7 @@ function renderBracket() {
           <span class="b-team-name">${f2?f2+' ':''}${disp2}</span>
           ${s?`<span class="b-score">${s.a}</span>`:''}
         </div>
+        ${penLabel}
         ${info?`<div class="b-match-note">${info}</div>`:''}
         ${note?`<div class="b-match-note">${note}</div>`:''}
       </div>`;
@@ -1626,7 +1653,7 @@ function renderBracket() {
   const fs = scores['M104'];
   if (fs && scores['M101'] && scores['M102']) {
     const t1 = resolveSlot('W:M101'), t2 = resolveSlot('W:M102');
-    const champ = fs.h>fs.a ? t1 : fs.a>fs.h ? t2 : null;
+    const champ = fs.h>fs.a ? t1 : fs.a>fs.h ? t2 : fs.pen===1 ? t1 : fs.pen===2 ? t2 : null;
     if (champ) {
       document.getElementById('champion-banner').classList.add('visible');
       const champCode = FLAGS[champ];
@@ -1645,7 +1672,10 @@ function renderBracket() {
 function openModal(id) {
   const m = MATCHES.find(x=>x.id===id);
   if (!m) return;
-  editId = id;
+  editId = id; editIsKo = false; selectedPen = null;
+  document.getElementById('pen-row').classList.remove('visible');
+  document.getElementById('m-s1').oninput = null;
+  document.getElementById('m-s2').oninput = null;
   document.getElementById('m-title').textContent = t('modalGrpTitle')(m.g, m.md);
   document.getElementById('m-match').textContent = `${teamName(m.h)} vs ${teamName(m.a)}`;
   document.getElementById('m-sub').textContent   = `${fmtDate(m.date)}  ·  ${m.venue!=='TBD'?m.venue:t('venueTbd')}`;
@@ -1662,21 +1692,55 @@ function openModal(id) {
 }
 
 function openKoModal(id, s1, s2) {
-  editId = id;
+  editId = id; editIsKo = true; selectedPen = null;
   const raw1 = resolveSlot(s1), raw2 = resolveSlot(s2);
+  const name1 = teamName(raw1.replace(/ \(.*\)$/,''));
+  const name2 = teamName(raw2.replace(/ \(.*\)$/,''));
   document.getElementById('m-title').textContent  = t('koMatch');
-  document.getElementById('m-match').textContent  = `${teamName(raw1)} vs ${teamName(raw2)}`;
+  document.getElementById('m-match').textContent  = `${name1} vs ${name2}`;
   document.getElementById('m-sub').textContent    = id;
   document.getElementById('m-flag1').innerHTML  = flag(raw1.replace(/ \(.*\)$/,''));
   document.getElementById('m-flag2').innerHTML  = flag(raw2.replace(/ \(.*\)$/,''));
-  document.getElementById('m-name1').textContent  = teamName(raw1.replace(/ \(.*\)$/,''));
-  document.getElementById('m-name2').textContent  = teamName(raw2.replace(/ \(.*\)$/,''));
+  document.getElementById('m-name1').textContent  = name1;
+  document.getElementById('m-name2').textContent  = name2;
   const s = scores[id];
   document.getElementById('m-s1').value = s ? s.h : 0;
   document.getElementById('m-s2').value = s ? s.a : 0;
+  // Penalty row: set team names and pre-select if already stored
+  selectedPen = s ? (s.pen || null) : null;
+  document.getElementById('pen-btn1').textContent = name1;
+  document.getElementById('pen-btn2').textContent = name2;
+  updatePenRow(selectedPen);
   document.getElementById('modal').classList.add('open');
   document.getElementById('m-s1').focus();
   document.getElementById('m-s1').select();
+  // Show/hide pen row whenever scores change
+  document.getElementById('m-s1').oninput = checkPenRow;
+  document.getElementById('m-s2').oninput = checkPenRow;
+}
+
+function checkPenRow() {
+  if (!editIsKo) return;
+  const h = parseInt(document.getElementById('m-s1').value)||0;
+  const a = parseInt(document.getElementById('m-s2').value)||0;
+  if (h !== a) { document.getElementById('pen-row').classList.remove('visible'); return; }
+  updatePenRow(selectedPen);
+}
+
+function updatePenRow(pen) {
+  const h = parseInt(document.getElementById('m-s1').value)||0;
+  const a = parseInt(document.getElementById('m-s2').value)||0;
+  const row = document.getElementById('pen-row');
+  if (h !== a) { row.classList.remove('visible'); return; }
+  row.classList.add('visible');
+  document.getElementById('pen-btn1').classList.toggle('selected', pen === 1);
+  document.getElementById('pen-btn2').classList.toggle('selected', pen === 2);
+}
+
+function selectPen(n) {
+  selectedPen = n;
+  document.getElementById('pen-btn1').classList.toggle('selected', n === 1);
+  document.getElementById('pen-btn2').classList.toggle('selected', n === 2);
 }
 
 function closeModal() { document.getElementById('modal').classList.remove('open'); editId=null; }
@@ -1685,7 +1749,9 @@ function saveScore() {
   if (!editId) return;
   const h = Math.max(0, parseInt(document.getElementById('m-s1').value)||0);
   const a = Math.max(0, parseInt(document.getElementById('m-s2').value)||0);
-  scores[editId] = {h,a};
+  const entry = {h, a};
+  if (editIsKo && h === a && selectedPen) entry.pen = selectedPen;
+  scores[editId] = entry;
   save(); closeModal(); renderAll();
 }
 
